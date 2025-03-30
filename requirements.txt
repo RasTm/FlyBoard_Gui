@@ -1,0 +1,2 @@
+wxPython==4.2.2
+pyserial==3.5
