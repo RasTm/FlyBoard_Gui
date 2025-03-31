@@ -1,5 +1,25 @@
-
 import wx
+import serial
+import serial.tools.list_ports
+
+def serial_ports():
+    ports = serial.tools.list_ports.comports()
+    print(ports)
+    seri_port = []
+    for p in ports:
+        print(p.device)
+        seri_port.append(p.device)
+    print(seri_port)
+    return seri_port
+
+def serial_baglan():
+    com_deger = value[0]
+    baud_deger = value[1]
+    print("Baud Deger", value[1])
+    global ser
+    ser = serial.Serial(com_deger, baud_deger, timeout=0, parity=serial.PARITY_NONE, stopbits = serial.STOPBITS_ONE , bytesize = serial.EIGHTBITS, rtscts=0)
+    window["-BAGLANDI_TEXT-"].update('Bağlandı...')
+
 class ExamplePanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -13,7 +33,7 @@ class ExamplePanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnClick,self.button)
 
         # the edit control - one line version.
-        self.lblname = wx.StaticText(self, label="Your name :", pos=(20,60))
+        self.lblname = wx.StaticText(self, label="First Box :", pos=(20,60))
         self.editname = wx.TextCtrl(self, value="Enter here your name", pos=(150, 60), size=(140,-1))
         self.Bind(wx.EVT_TEXT, self.EvtText, self.editname)
         self.Bind(wx.EVT_CHAR, self.EvtChar, self.editname)
