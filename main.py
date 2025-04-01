@@ -2,6 +2,8 @@ import serial
 import serial.tools.list_ports
 import wx
 
+ser = None  #Global tanımlanmalı
+
 def serial_ports():
     ports = serial.tools.list_ports.comports()
     print(ports)
@@ -18,64 +20,36 @@ def serial_baglan():
     print("Baud Deger", value[1])
     global ser
     ser = serial.Serial(com_deger, baud_deger, timeout=0, parity=serial.PARITY_NONE, stopbits = serial.STOPBITS_ONE , bytesize = serial.EIGHTBITS, rtscts=0)
-    window["-BAGLANDI_TEXT-"].update('Bağlandı...')
 
-class ExamplePanel(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        self.quote = wx.StaticText(self, label="Your quote :", pos=(20, 30))
+class FlyBoard(wx.Frame):
+    def __init__(self):
+        super().__init__(None, title="FlyBoard Gui v1.0", size=(1000, 250))
+        panel = wx.Panel(self)
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        
+        self.text = wx.StaticText(panel, label="FlyBoard Gui Alpha")
+        vbox.Add(self.text, flag=wx.ALIGN_CENTER | wx.TOP, border=50)
+        
+        self.button = wx.Button(panel, label="Tıkla")
+        vbox.Add(self.button, flag=wx.ALIGN_CENTER | wx.TOP, border=10)
+        
+        self.button.Bind(wx.EVT_BUTTON, self.on_button_click)
+        
+        panel.SetSizer(vbox)
+        self.Centre()
+    
+    def on_button_click(self, event):
+        self.text.SetLabel("anaskm")
+        self.button.SetLabel("fetiyi sikm31")
+        self.button.SetSize(200,100)
+        self.Layout()
 
-        # A multiline TextCtrl - This is here to show how the events work in this program, don't pay too much attention to it
-        self.logger = wx.TextCtrl(self, pos=(300,20), size=(200,300), style=wx.TE_MULTILINE | wx.TE_READONLY)
+class MyApp(wx.App):
+    def OnInit(self):
+        frame = FlyBoard()
+        frame.Show()
+        return True
 
-        # A button
-        self.button =wx.Button(self, label="Save", pos=(200, 325))
-        self.Bind(wx.EVT_BUTTON, self.OnClick,self.button)
-
-        # the edit control - one line version.
-        self.lblname = wx.StaticText(self, label="First Box :", pos=(20,60))
-        self.editname = wx.TextCtrl(self, value="Enter here your name", pos=(150, 60), size=(140,-1))
-        self.Bind(wx.EVT_TEXT, self.EvtText, self.editname)
-        self.Bind(wx.EVT_CHAR, self.EvtChar, self.editname)
-
-        # the combobox Control
-        self.sampleList = ['friends', 'advertising', 'web search', 'Yellow Pages']
-        self.lblhear = wx.StaticText(self, label="How did you hear from us ?", pos=(20, 90))
-        self.edithear = wx.ComboBox(self, pos=(150, 90), size=(95, -1), choices=self.sampleList, style=wx.CB_DROPDOWN)
-        self.Bind(wx.EVT_COMBOBOX, self.EvtComboBox, self.edithear)
-        self.Bind(wx.EVT_TEXT, self.EvtText,self.edithear)
-
-        # Checkbox
-        self.insure = wx.CheckBox(self, label="Do you want Insured Shipment ?", pos=(20,180))
-        self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox, self.insure)
-
-        # Radio Boxes
-        radioList = ['blue', 'red', 'yellow', 'orange', 'green', 'purple', 'navy blue', 'black', 'gray']
-        rb = wx.RadioBox(self, label="What color would you like ?", pos=(20, 210), choices=radioList,  majorDimension=3,
-                         style=wx.RA_SPECIFY_COLS)
-        self.Bind(wx.EVT_RADIOBOX, self.EvtRadioBox, rb)
-
-    def EvtRadioBox(self, event):
-        self.logger.AppendText('EvtRadioBox: %d\n' % event.GetInt())
-    def EvtComboBox(self, event):
-        self.logger.AppendText('EvtComboBox: %s\n' % event.GetString())
-    def OnClick(self,event):
-        self.logger.AppendText(" Click on object with Id %d\n" %event.GetId())
-    def EvtText(self, event):
-        self.logger.AppendText('EvtText: %s\n' % event.GetString())
-    def EvtChar(self, event):
-        self.logger.AppendText('EvtChar: %d\n' % event.GetKeyCode())
-        event.Skip()
-    def EvtCheckBox(self, event):
-        self.logger.AppendText('EvtCheckBox: %d\n' % event.Checked())
-
-app = wx.App(False)
-frame = wx.Frame(None)
-nb = wx.Notebook(frame)
-
-
-nb.AddPage(ExamplePanel(nb), "Absolute Positioning")
-nb.AddPage(ExamplePanel(nb), "Page Two")
-nb.AddPage(ExamplePanel(nb), "Page Three")
-frame.Show()
-app.MainLoop()
+if __name__ == "__main__":
+    app = MyApp()
+    app.MainLoop()
