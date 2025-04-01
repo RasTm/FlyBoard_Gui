@@ -1,6 +1,6 @@
-import wx
 import serial
 import serial.tools.list_ports
+import wx
 
 def serial_ports():
     ports = serial.tools.list_ports.comports()
