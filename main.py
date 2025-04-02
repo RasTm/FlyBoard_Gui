@@ -60,7 +60,7 @@ class FlyBoard(wx.Frame):                                                       
     def on_button_click(self, event):
         self.text.SetLabel("anaskm")
         self.button.SetLabel("fetiyi sikm31")
-        self.button.SetSize(200,100)
+        self.button.SetSize(100,100)
         self.Layout()   
 
 class MyApp(wx.App):
