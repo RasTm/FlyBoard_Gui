@@ -41,8 +41,6 @@ class FlyBoard(wx.Frame):                                                       
         menu_bar.Append(uart_menu, "&Serial")                                        ## Menü Satırına "Serial" İsimli Başlığın Eklenmesi
         self.SetMenuBar(menu_bar)                                                    ## Menü Satırının Oluşturulması
 
-        self.Bind(wx.EVT_MENU, self.On_Exit, menu_exit)                              ## "Çıkış" İsimli Alt Menü Seçeneğinin Çıkış İşlemi İçin Olay Tanımlanması
-
         self.text = wx.StaticText(panel, label="FlyBoard Gui Alpha")
         vbox.Add(self.text, flag=wx.ALIGN_CENTER | wx.TOP, border=50)
         
@@ -50,6 +48,7 @@ class FlyBoard(wx.Frame):                                                       
         vbox.Add(self.button, flag=wx.ALIGN_CENTER | wx.TOP, border=10)
         
         self.button.Bind(wx.EVT_BUTTON, self.on_button_click)
+        self.Bind(wx.EVT_MENU, self.On_Exit, menu_exit)                              ## "Çıkış" İsimli Alt Menü Seçeneğinin Çıkış İşlemi İçin Olay Tanımlanması
         
         panel.SetSizer(vbox)
         self.Centre()
@@ -58,8 +57,8 @@ class FlyBoard(wx.Frame):                                                       
         self.Close(True)                                                             ## Çıkış İşleminin Yapılması
 
     def on_button_click(self, event):
-        self.text.SetLabel("anaskm")
-        self.button.SetLabel("fetiyi sikm31")
+        self.text.SetLabel("Sene 1340")
+        self.button.SetLabel("Buralar Orman")
         self.button.SetSize(100,100)
         self.Layout()   
 
