@@ -34,27 +34,43 @@ class FlyBoard(wx.Frame):                                                       
         vbox.Add(self.button, flag=wx.ALIGN_CENTER | wx.TOP, border=10)              ## Ekranın Ortasına ve 60 piksel uzağa yerleştirilmesi 
 
         panel.SetSizer(vbox)                                                         ## "panel" Boyutlandırıcısı Olarak "vbox" objesinin kullanılması
-        self.Centre()                                                                ## Bütün Penceresinin Monitöre Ortalanması
+        self.Centre()                                                                ## Bütün Pencerenin Monitöre Ortalanması
 
         self.CreateStatusBar()                                                       ## Aşağıya Durum Çubuğu Konulması
 
         file_menu = wx.Menu()                                                        ## Programın Sol Üstündeki "Dosya" Menüsü Tanımlanması
         menu_about = file_menu.Append(wx.ID_ABOUT, "&Hakkında", "Fenrastech - FlyBoard Gui")    ## "Dosya" İsimli Menü İçine "Hakkında" Seçeneğinin Eklenmesi
         file_menu.AppendSeparator()                                                  ## Ayıraç Eklenmesi
-        menu_exit =  file_menu.Append(wx.ID_EXIT, "&Çıkış", "")                      ## "Çıkış" İsimli Seçeneğin Eklenmesi
+        menu_exit =  file_menu.Append(wx.ID_EXIT, "&Çıkış")                          ## "Çıkış" İsimli Seçeneğin Eklenmesi
 
-        uart_menu = wx.Menu()                                                        ## "Dosya" İsimli Menünün Yanına Uart İçin Yeni Menü Eklenmesi
-        uart_menu.Append(wx.ID_ANY, "&Baud Rate", "")                                ## "Baud Rate" İsimli Yeni Seçeneğin Eklenmesi
+        self.baud_rates = {
+            "4800":   wx.NewIdRef(),
+            "9600":   wx.NewIdRef(),
+            "14400":  wx.NewIdRef(),
+            "19200":  wx.NewIdRef(),
+            "38400":  wx.NewIdRef(),
+            "57600":  wx.NewIdRef(),
+            "115200": wx.NewIdRef()
+        }
+
+        menu_serial = wx.Menu()                                                      ## "Dosya" İsimli Menünün Yanına UART Ayarları İçin Yeni Menü Eklenmesi
+        uart_menu   = wx.Menu()                                                      ## "uart_menu" Adında Bir Alt Menü Oluşturulması (baudrate seçmek için)
+
+        menu_serial.AppendSubMenu(uart_menu, "&Baud Rate")                           ## "Baud Rate" İsimli Yeni Seçeneğin "Serial" Menüsü Altına Eklenmesi
 
         menu_bar = wx.MenuBar()                                                      ## "menu_bar" İsimli Menü Satırının Oluşturulması
         menu_bar.Append(file_menu, "&Dosya")                                         ## Menü Satırına "Dosya" İsimli Başlığın Eklenmesi
-        menu_bar.Append(uart_menu, "&Serial")                                        ## Menü Satırına "Serial" İsimli Başlığın Eklenmesi
+        menu_bar.Append(menu_serial, "&Serial")                                      ## Menü Satırına "Serial" İsimli Başlığın Eklenmesi
         self.SetMenuBar(menu_bar)                                                    ## Menü Satırının Oluşturulması
 
-        self.button.Bind(wx.EVT_BUTTON, self.on_button_click)
-        self.Bind(wx.EVT_MENU, self.On_Exit, menu_exit)                              ## "Çıkış" İsimli Alt Menü Seçeneğinin Çıkış İşlemi İçin Olay Tanımlanması
-    
-    def On_Exit(self,e):                                                             ## "Çıkış" İsimli Seçeneğin Çağırdığı Fonksiyon 
+        self.Bind(wx.EVT_MENU, self.on_exit, menu_exit)                              ## "Çıkış" İsimli Alt Menü Seçeneğinin Çıkış İşlemi İçin Olay Tanımlanması
+        self.button.Bind(wx.EVT_BUTTON, self.on_button_click)                        ## Buton için Olay Tanımlanması
+
+        for rate, rate_id in self.baud_rates.items():
+            uart_menu.Append(rate_id, rate, "Set UART Baudrate")
+            self.Bind(wx.EVT_MENU, self.uart_baud_select, id=rate_id)
+
+    def on_exit(self,e):                                                             ## "Çıkış" İsimli Seçeneğin Çağırdığı Fonksiyon 
         self.Close(True)                                                             ## Çıkış İşleminin Yapılması
 
     def on_button_click(self, event):                                                ## Butona Tıklanıldığında Çağrılan Fonksiyon 
@@ -62,6 +78,12 @@ class FlyBoard(wx.Frame):                                                       
         self.button.SetLabel("Buralar Orman")                                        ## Buton Üzerindeki Yazının Güncellenmesi
         self.button.SetSize(100,100)                                                 ## Butonun Ölçülerinin Değiştirilmesi
         self.Layout()                                                                ## Değişen Ölçülere Göre Tekrar Düzen Oluşturulması
+    
+    def uart_baud_select(self, event):
+        uart_menu_id = event.GetId()
+        for rate, rate_id in self.baud_rates.items():
+            if uart_menu_id == rate_id:
+                print(f"Seçilen baud rate: {rate} bps")
 
 class MyApp(wx.App):
     def OnInit(self):
