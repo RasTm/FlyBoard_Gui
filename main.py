@@ -70,7 +70,7 @@ class FlyBoard(wx.Frame):                                                       
             uart_menu.Append(rate_id, rate, "Set UART Baudrate")
             self.Bind(wx.EVT_MENU, self.uart_baud_select, id=rate_id)
 
-    def on_exit(self,event):                                                         ## "Çıkış" İsimli Seçeneğin Çağırdığı Fonksiyon 
+    def on_exit(self, event):                                                         ## "Çıkış" İsimli Seçeneğin Çağırdığı Fonksiyon 
         self.Close(True)                                                             ## Çıkış İşleminin Yapılması
 
     def on_button_click(self, event):                                                ## Butona Tıklanıldığında Çağrılan Fonksiyon 
