@@ -26,6 +26,16 @@ class FlyBoard(wx.Frame):                                                       
         wx.Frame.__init__(self,None, title="FlyBoard Gui v1.0", size=(1000, 350))    ## Başlık ve Pencere Büyüklüğü Ayarlanması
         panel = wx.Panel(self)                                                       ## "panel" Objesinin Tanımlanması
         vbox = wx.BoxSizer(wx.VERTICAL)                                              ## Box Sizer Ayarlanması
+        
+        self.text = wx.StaticText(panel, label="FlyBoard Gui Alpha")                 ## "panel" İçine "FlyBoard Gui Alpha" Yazdırılması
+        vbox.Add(self.text, flag=wx.ALIGN_CENTER | wx.TOP, border=50)                ## Ekranın Ortasına ve 50 piksel uzağa yerleştirilmesi 
+        
+        self.button = wx.Button(panel, label="Tıkla")                                ## "panel" İçine "Tıkla" Yazan Buton oluşturulması
+        vbox.Add(self.button, flag=wx.ALIGN_CENTER | wx.TOP, border=10)              ## Ekranın Ortasına ve 60 piksel uzağa yerleştirilmesi 
+
+        panel.SetSizer(vbox)                                                         ## "panel" Boyutlandırıcısı Olarak "vbox" objesinin kullanılması
+        self.Centre()                                                                ## Bütün Penceresinin Monitöre Ortalanması
+
         self.CreateStatusBar()                                                       ## Aşağıya Durum Çubuğu Konulması
 
         file_menu = wx.Menu()                                                        ## Programın Sol Üstündeki "Dosya" Menüsü Tanımlanması
@@ -41,26 +51,17 @@ class FlyBoard(wx.Frame):                                                       
         menu_bar.Append(uart_menu, "&Serial")                                        ## Menü Satırına "Serial" İsimli Başlığın Eklenmesi
         self.SetMenuBar(menu_bar)                                                    ## Menü Satırının Oluşturulması
 
-        self.text = wx.StaticText(panel, label="FlyBoard Gui Alpha")
-        vbox.Add(self.text, flag=wx.ALIGN_CENTER | wx.TOP, border=50)
-        
-        self.button = wx.Button(panel, label="Tıkla")
-        vbox.Add(self.button, flag=wx.ALIGN_CENTER | wx.TOP, border=10)
-        
         self.button.Bind(wx.EVT_BUTTON, self.on_button_click)
         self.Bind(wx.EVT_MENU, self.On_Exit, menu_exit)                              ## "Çıkış" İsimli Alt Menü Seçeneğinin Çıkış İşlemi İçin Olay Tanımlanması
-        
-        panel.SetSizer(vbox)
-        self.Centre()
     
     def On_Exit(self,e):                                                             ## "Çıkış" İsimli Seçeneğin Çağırdığı Fonksiyon 
         self.Close(True)                                                             ## Çıkış İşleminin Yapılması
 
-    def on_button_click(self, event):
-        self.text.SetLabel("Sene 1340")
-        self.button.SetLabel("Buralar Orman")
-        self.button.SetSize(100,100)
-        self.Layout()   
+    def on_button_click(self, event):                                                ## Butona Tıklanıldığında Çağrılan Fonksiyon 
+        self.text.SetLabel("Sene 1340")                                              ## Metin Yazısının Güncellenmesi
+        self.button.SetLabel("Buralar Orman")                                        ## Buton Üzerindeki Yazının Güncellenmesi
+        self.button.SetSize(100,100)                                                 ## Butonun Ölçülerinin Değiştirilmesi
+        self.Layout()                                                                ## Değişen Ölçülere Göre Tekrar Düzen Oluşturulması
 
 class MyApp(wx.App):
     def OnInit(self):
