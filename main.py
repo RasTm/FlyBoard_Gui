@@ -61,7 +61,7 @@ class GirisEkrani(wx.Frame):
         self.Show()
 
     def on_enter(self, event):
-        if self.user_input.GetValue().strip().lower() == "fethi çelik":
+        if self.user_input.GetValue().strip().lower() == "asdf":
             self.Hide()
             AnaPencere()
         else:
@@ -89,12 +89,13 @@ class YerIstasyonu(wx.Panel):
         self.veri_etiketleri = [
             "Yükseklik", "Hız", "Batarya", "GPS", "Volt", "Amper", "Basınç", "Sıcaklık", "Roll", "Pitch"
         ]
+        self.stat_panel = wx.Panel(self)  # Sayısal kutular için özel panel
         veri_kutulari = []
 
         for etiket in self.veri_etiketleri:
-            box = wx.StaticBox(self, label=etiket)
+            box = wx.StaticBox(self.stat_panel, label=etiket)
             sizer = wx.StaticBoxSizer(box, wx.VERTICAL)
-            label = wx.StaticText(self, label="0" if etiket == "Hız" else ("40.739811, 30.334173" if etiket == "GPS" else "--"))
+            label = wx.StaticText(self.stat_panel, label="--")
             label.SetFont(wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.BOLD))
             sizer.Add(label, flag=wx.ALL, border=5)
             veri_kutulari.append(sizer)
@@ -104,6 +105,8 @@ class YerIstasyonu(wx.Panel):
         for kutu in veri_kutulari:
             grid.Add(kutu, 1, wx.EXPAND)
 
+        self.stat_panel.SetSizer(grid) 
+
         self.map_file = "yer_map.html"
         self.build_map()
         self.browser = WebView.New(self)
@@ -111,7 +114,7 @@ class YerIstasyonu(wx.Panel):
 
         left = wx.BoxSizer(wx.VERTICAL)
         left.Add(self.horizon, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-        left.Add(grid, 0, wx.EXPAND | wx.ALL, 10)
+        left.Add(self.stat_panel, 0, wx.EXPAND | wx.ALL, 10)
 
         right = wx.BoxSizer(wx.VERTICAL)
         right.Add(self.browser, 1, wx.EXPAND | wx.ALL, 5)
@@ -127,9 +130,15 @@ class YerIstasyonu(wx.Panel):
         m.save(self.map_file)
 
     def update_stats(self, data):
-        for k, v in data.items():
-            if k in self.stats:
-                self.stats[k].SetLabel(str(v))
+        self.stat_panel.Freeze()
+        try:
+            for k, v in data.items():
+                if k in self.stats:
+                    self.stats[k].SetLabel(str(v))
+        finally:
+            self.stat_panel.Thaw()
+
+
 
 # === Serial Bağlantı Sekmesi ===
 class SerialSettings(wx.Panel):
@@ -195,7 +204,7 @@ class SerialSettings(wx.Panel):
                         sicaklik = parts[4]
                         roll = parts[5]
                         pitch = parts[6]
-                        batarya_yuzde = min(100, round((volt / 12.6) * 100))
+                        batarya_yuzde = min(100, round((volt / 21) * 100))
                         data = {
                             "Yükseklik": yukseklik,
                             "Volt": volt,
