@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSerialPort>
+#include <QStringList>
 #include "Telemetry.h"
 
 class SerialManager : public QObject {
@@ -14,6 +15,7 @@ class SerialManager : public QObject {
     Q_PROPERTY(float altitude READ altitude NOTIFY telemetryUpdated)
 
 public:
+    Q_INVOKABLE QStringList getAvailablePorts();
     explicit SerialManager(QObject *parent = nullptr);
     ~SerialManager();
 

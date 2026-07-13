@@ -1,5 +1,6 @@
 #include "SerialManager.h"
 #include <QDebug>
+#include <QSerialPortInfo>
 
 SerialManager::SerialManager(QObject *parent) : QObject(parent) {
     // Seri porta yeni veri geldiğinde readData fonksiyonunu tetikle
@@ -67,4 +68,16 @@ void SerialManager::readData() {
         // İşlenen paketi buffer'dan çıkar ki bir sonraki pakete geçsin
         m_buffer.remove(0, packetSize);
     }
+}
+
+QStringList SerialManager::getAvailablePorts() {
+    QStringList portList;
+    const auto ports = QSerialPortInfo::availablePorts();
+
+    for (const QSerialPortInfo &port : ports) {
+        // systemLocation(), işletim sistemine göre en doğru dosya yolunu veya COM ismini verir.
+        portList.append(port.systemLocation());
+    }
+
+    return portList;
 }
