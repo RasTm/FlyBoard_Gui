@@ -75,8 +75,15 @@ QStringList SerialManager::getAvailablePorts() {
     const auto ports = QSerialPortInfo::availablePorts();
 
     for (const QSerialPortInfo &port : ports) {
-        // systemLocation(), işletim sistemine göre en doğru dosya yolunu veya COM ismini verir.
-        portList.append(port.systemLocation());
+
+        // Eğer port "ttyS" (veya Windows'ta sanal COM) ile başlıyorsa
+        // ve cihazın sistemde hiçbir donanım açıklaması yoksa bu bir "Hayalet Port"tur.
+        bool isGhostPort = port.portName().startsWith("ttyS") && port.description().isEmpty();
+
+        if (!isGhostPort) {
+            // Sadece gerçek donanımları (ttyUSB, ttyACM, ttyAMA) listeye ekle
+            portList.append(port.systemLocation());
+        }
     }
 
     return portList;
