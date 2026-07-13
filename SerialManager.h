@@ -15,13 +15,14 @@ class SerialManager : public QObject {
     Q_PROPERTY(float altitude READ altitude NOTIFY telemetryUpdated)
 
 public:
-    Q_INVOKABLE QStringList getAvailablePorts();
     explicit SerialManager(QObject *parent = nullptr);
     ~SerialManager();
 
     // QML'den butonlarla çağırabileceğimiz fonksiyonlar
-    Q_INVOKABLE void connectPort(const QString &portName, int baudRate);
     Q_INVOKABLE void disconnectPort();
+    Q_INVOKABLE QStringList getAvailablePorts();
+    Q_INVOKABLE void sendCommand(const QString &command);
+    Q_INVOKABLE void connectPort(const QString &portName, int baudRate);
 
     // Okuma fonksiyonları
     float roll() const { return m_packet.roll; }

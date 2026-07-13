@@ -88,3 +88,12 @@ QStringList SerialManager::getAvailablePorts() {
 
     return portList;
 }
+
+void SerialManager::sendCommand(const QString &command) {
+    if (m_serial.isOpen()) {
+        // Gelen metni byte dizisine çevir ve sonuna satır sonu (\n) ekle
+        QByteArray data = command.toUtf8() + "\n";
+        m_serial.write(data);
+        m_serial.flush(); // İşletim sistemini beklemeden anında gönder
+    }
+}
