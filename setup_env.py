@@ -23,7 +23,7 @@ def install_linux():
     elif shutil.which("apt"):
         print("Paket Yöneticisi: apt (Debian / Ubuntu / Raspberry Pi OS)")
         run_command("sudo apt update")
-        cmd = "sudo apt install -y build-essential cmake ninja-build qt6-base-dev qt6-declarative-dev libqt6serialport6 qt6-wayland mesa-utils"
+        cmd = "sudo apt install -y build-essential cmake ninja-build qt6-base-dev qt6-declarative-dev libqt6serialport6 qt6-wayland mesa-utils libxkbcommon-dev qt6-serialport-dev "
         run_command(cmd)
 
     elif shutil.which("dnf"):
