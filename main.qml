@@ -14,6 +14,5 @@ Window {
         color: "#ffffff"
         font.pointSize: 20
         font.bold: true
-        font.italic: true
     }
 }
