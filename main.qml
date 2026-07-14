@@ -14,34 +14,30 @@ ApplicationWindow {
     property bool isConnected: false
     property bool showTimestamp: true
     property bool autoScroll: true
+    property double currentPos
 
     function appendLog(message) {
-            let prefix = "";
-            if (showTimestamp) {
-                let date = new Date();
-                prefix = "[" + date.toLocaleTimeString() + "] ";
-            }
-
-            // 1. ScrollView'in içindeki kaydırılabilir (Flickable) alanı ve mutlak Y pikselini yakala
-            let flickable = logScrollView.contentItem;
-            let oldContentY = flickable.contentY;
-
-            // 2. Metni ekle
-            logArea.append(prefix + message);
-
-            // 3. Qt.callLater ile arayüzün yeni metni çizip boyutları güncellemesini bekle
-            Qt.callLater(function() {
-                if (autoScroll) {
-                    // Autoscroll açıksa ve metin ekrandan taştıysa en alta (maksimum Y değerine) zorla
-                    if (flickable.contentHeight > flickable.height) {
-                        flickable.contentY = flickable.contentHeight - flickable.height;
-                    }
-                } else {
-                    // Autoscroll kapalıysa, orana (position) bakmadan eski mutlak Y pikselini geri yükle
-                    flickable.contentY = oldContentY;
-                }
-            });
+        let prefix = "";
+        if (showTimestamp) {
+            let date = new Date();
+            prefix = "[" + date.toLocaleTimeString() + "] ";
         }
+
+        let flickable = logScrollView.contentItem;
+        let oldContentY = flickable.contentY;
+
+        logArea.append(prefix + message);
+
+        Qt.callLater(function() {
+            if (autoScroll) {
+                if (flickable.contentHeight > flickable.height) {
+                    flickable.contentY = flickable.contentHeight - flickable.height;
+                }
+            } else {
+                flickable.contentY = oldContentY;
+            }
+        });
+    }
 
     // ==========================================
     // ÜST MENÜ BAR (HEADER)
@@ -202,28 +198,40 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Text { text: "SİSTEM LOGLARI & TERMİNAL"; color: "#a6adc8"; font.bold: true; Layout.fillWidth: true }
 
-                        // Saat (Timestamp) Butonu
+                        // Saat (Timestamp) Butonu (Canvas)
                         Button {
                             implicitWidth: 32; implicitHeight: 32
                             background: Rectangle { color: mainWindow.showTimestamp ? "#45475a" : "transparent"; radius: 4 }
-                            contentItem: Image {
-                                source: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNhNmFkYzgiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMTIgNiAxMiAxMiAxNiAxNCI+PC9wb2x5bGluZT48L3N2Zz4="
-                                fillMode: Image.PreserveAspectFit
-                                anchors.margins: 6
-                                anchors.fill: parent
+                            contentItem: Canvas {
+                                anchors.fill: parent; anchors.margins: 5
+                                onPaint: {
+                                    var ctx = getContext("2d");
+                                    ctx.reset(); ctx.strokeStyle = "#a6adc8"; ctx.lineWidth = 2;
+                                    ctx.beginPath();
+                                    ctx.arc(width/2, height/2, width/2 - 1, 0, Math.PI * 2);
+                                    ctx.moveTo(width/2, height/4); ctx.lineTo(width/2, height/2);
+                                    ctx.lineTo(width*0.75, height/2);
+                                    ctx.stroke();
+                                }
                             }
                             onClicked: mainWindow.showTimestamp = !mainWindow.showTimestamp
                         }
 
-                        // Kaydırma (Autoscroll) Butonu
+                        // Kaydırma (Autoscroll) Butonu (Canvas)
                         Button {
                             implicitWidth: 32; implicitHeight: 32
                             background: Rectangle { color: mainWindow.autoScroll ? "#45475a" : "transparent"; radius: 4 }
-                            contentItem: Image {
-                                source: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNhNmFkYzgiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48bGluZSB4MT0iMTIiIHkxPSI1IiB4Mj0iMTIiIHkyPSIxOSI+PC9saW5lPjxwb2x5bGluZSBwb2ludHM9IjE5IDEyIDEyIDE5IDUgMTIiPjwvcG9seWxpbmU+PC9zdmc+"
-                                fillMode: Image.PreserveAspectFit
-                                anchors.margins: 6
-                                anchors.fill: parent
+                            contentItem: Canvas {
+                                anchors.fill: parent; anchors.margins: 7
+                                onPaint: {
+                                    var ctx = getContext("2d");
+                                    ctx.reset(); ctx.strokeStyle = "#a6adc8"; ctx.lineWidth = 2;
+                                    ctx.beginPath();
+                                    ctx.moveTo(width/2, 0); ctx.lineTo(width/2, height);
+                                    ctx.moveTo(width/4, height*0.6); ctx.lineTo(width/2, height);
+                                    ctx.lineTo(width*0.75, height*0.6);
+                                    ctx.stroke();
+                                }
                             }
                             onClicked: mainWindow.autoScroll = !mainWindow.autoScroll
                         }
@@ -255,22 +263,28 @@ ApplicationWindow {
                         TextField {
                             id: cmdInput
                             Layout.fillWidth: true
-                            placeholderText: ""
+                            placeholderText: "Gönderilecek komut..."
                             color: "#cdd6f4"
                             font.family: "Monospace"
-                            background: Rectangle { color: "#313244"; radius: 4; implicitHeight: 20}
+                            background: Rectangle { color: "#313244"; radius: 4; implicitHeight: 32}
                             onAccepted: sendBtn.clicked()
                         }
 
+                        // Gönder Butonu (Canvas)
                         Button {
                             id: sendBtn
-                            implicitWidth: 40; implicitHeight: 22
+                            implicitWidth: 40; implicitHeight: 32
                             background: Rectangle { color: sendBtn.pressed ? "#1565C0" : "#313244"; radius: 4 }
-                            contentItem: Image {
-                                source: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNhNmUzYTEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48bGluZSB4MT0iMjIiIHkxPSIyIiB4Mj0iMTEiIHkyPSIxMyI+PC9saW5lPjxwb2x5Z29uIHBvaW50cz0iMjIgMiAxNSAyMiAxMSAxMyAyIDkgMjIgMiI+PC9wb2x5Z29uPjwvc3ZnPg=="
-                                fillMode: Image.PreserveAspectFit
-                                anchors.margins: 5
-                                anchors.fill: parent
+                            contentItem: Canvas {
+                                anchors.fill: parent; anchors.margins: 8
+                                onPaint: {
+                                    var ctx = getContext("2d");
+                                    ctx.reset(); ctx.fillStyle = "#a6e3a1";
+                                    ctx.beginPath();
+                                    ctx.moveTo(0, height/4); ctx.lineTo(width, height/2);
+                                    ctx.lineTo(0, height*0.75); ctx.lineTo(width/4, height/2);
+                                    ctx.closePath(); ctx.fill();
+                                }
                             }
                             onClicked: {
                                 if(cmdInput.text !== "") {
