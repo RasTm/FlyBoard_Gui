@@ -59,13 +59,25 @@ void SerialManager::readData() {
         // 1 Tam paketi al
         QByteArray rawData = m_buffer.left(packetSize);
 
-        // İŞTE C++'IN GÜCÜ: Gelen ham baytları doğrudan Struct yapısına dönüştür (Cast işlemi)
+        // İŞTE EKSİK OLAN CHECKSUM KONTROLÜ
+        // Son 2 bayt (checksum'ın kendisi) hariç tüm baytları topla
+        uint16_t calculated_checksum = 0;
+        for (int i = 0; i < packetSize - 2; ++i) {
+            calculated_checksum += static_cast<uint8_t>(rawData[i]);
+        }
+
+        // Ham veriyi Struct yapısına dönüştür
         m_packet = *reinterpret_cast<const TelemetryPacket*>(rawData.constData());
 
-        // Arayüze "Yeni veri geldi, ekranı güncelle" sinyali gönder
-        emit telemetryUpdated();
+        // Gelen paket ile bizim hesapladığımız değer aynıysa arayüzü güncelle
+        if (m_packet.checksum == calculated_checksum) {
+            emit telemetryUpdated();
+        } else {
+            // İstersen buraya log yazdırabilirsin, hatalı paketler sessizce yoksayılır
+            qDebug() << "Hatalı paket reddedildi! Gelen:" << m_packet.checksum << " Hesaplanan:" << calculated_checksum;
+        }
 
-        // İşlenen paketi buffer'dan çıkar ki bir sonraki pakete geçsin
+        // İşlenen/Atılan paketi buffer'dan çıkar ki bir sonraki pakete geçsin
         m_buffer.remove(0, packetSize);
     }
 }
