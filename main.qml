@@ -14,27 +14,34 @@ ApplicationWindow {
     property bool isConnected: false
     property bool showTimestamp: true
     property bool autoScroll: true
-    property double currentPos
 
     function appendLog(message) {
-        let prefix = "";
-        if (showTimestamp) {
-            let date = new Date();
-            prefix = "[" + date.toLocaleTimeString() + "] ";
-        }
-
-        logArea.append(prefix + message);
-
-        if (autoScroll) {
-            if (logArea.contentHeight > logScrollView.height) {
-                logScrollView.ScrollBar.vertical.position = 1.0 - logScrollView.ScrollBar.vertical.size;
-                currentPos = logScrollView.ScrollBar.vertical.position;
+            let prefix = "";
+            if (showTimestamp) {
+                let date = new Date();
+                prefix = "[" + date.toLocaleTimeString() + "] ";
             }
-        } else {
 
-            logScrollView.ScrollBar.vertical.position = currentPos;
+            // 1. ScrollView'in içindeki kaydırılabilir (Flickable) alanı ve mutlak Y pikselini yakala
+            let flickable = logScrollView.contentItem;
+            let oldContentY = flickable.contentY;
+
+            // 2. Metni ekle
+            logArea.append(prefix + message);
+
+            // 3. Qt.callLater ile arayüzün yeni metni çizip boyutları güncellemesini bekle
+            Qt.callLater(function() {
+                if (autoScroll) {
+                    // Autoscroll açıksa ve metin ekrandan taştıysa en alta (maksimum Y değerine) zorla
+                    if (flickable.contentHeight > flickable.height) {
+                        flickable.contentY = flickable.contentHeight - flickable.height;
+                    }
+                } else {
+                    // Autoscroll kapalıysa, orana (position) bakmadan eski mutlak Y pikselini geri yükle
+                    flickable.contentY = oldContentY;
+                }
+            });
         }
-    }
 
     // ==========================================
     // ÜST MENÜ BAR (HEADER)
