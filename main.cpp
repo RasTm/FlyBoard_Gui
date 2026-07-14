@@ -1,11 +1,14 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickStyle>
 #include "SerialManager.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
-
+    
+    QQuickStyle::setStyle("Fusion");
+    
     QQmlApplicationEngine engine;
 
     // Sınıfı oluştur ve QML'e "serialManager" adıyla tanıt
