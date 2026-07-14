@@ -16,7 +16,6 @@ ApplicationWindow {
     property bool autoScroll: true
     property double currentPos
 
-    // Gelişmiş Log Ekleme Fonksiyonu
     function appendLog(message) {
         let prefix = "";
         if (showTimestamp) {
@@ -26,16 +25,13 @@ ApplicationWindow {
 
         logArea.append(prefix + message);
 
-        // 3. Duruma göre kaydırma kararını ver
         if (autoScroll) {
-            // Otomatik kaydırma AÇIKSA ve ekran dolduysa en alta zorla
             if (logArea.contentHeight > logScrollView.height) {
                 logScrollView.ScrollBar.vertical.position = 1.0 - logScrollView.ScrollBar.vertical.size;
                 currentPos = logScrollView.ScrollBar.vertical.position;
             }
         } else {
-            // Otomatik kaydırma KAPALIYSA, QML'in yukarı zıplamasına izin verme!
-            // Ekranı az önce kaydettiğimiz konuma geri çivile.
+
             logScrollView.ScrollBar.vertical.position = currentPos;
         }
     }
@@ -252,21 +248,21 @@ ApplicationWindow {
                         TextField {
                             id: cmdInput
                             Layout.fillWidth: true
-                            placeholderText: "Gönderilecek komut (Örn: CALIBRATE_GYRO veya P=1.5)"
+                            placeholderText: ""
                             color: "#cdd6f4"
                             font.family: "Monospace"
-                            background: Rectangle { color: "#313244"; radius: 4 }
+                            background: Rectangle { color: "#313244"; radius: 4; implicitHeight: 20}
                             onAccepted: sendBtn.clicked()
                         }
 
                         Button {
                             id: sendBtn
-                            implicitWidth: 40; implicitHeight: 40
+                            implicitWidth: 40; implicitHeight: 22
                             background: Rectangle { color: sendBtn.pressed ? "#1565C0" : "#313244"; radius: 4 }
                             contentItem: Image {
                                 source: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNhNmUzYTEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48bGluZSB4MT0iMjIiIHkxPSIyIiB4Mj0iMTEiIHkyPSIxMyI+PC9saW5lPjxwb2x5Z29uIHBvaW50cz0iMjIgMiAxNSAyMiAxMSAxMyAyIDkgMjIgMiI+PC9wb2x5Z29uPjwvc3ZnPg=="
                                 fillMode: Image.PreserveAspectFit
-                                anchors.margins: 10
+                                anchors.margins: 5
                                 anchors.fill: parent
                             }
                             onClicked: {
