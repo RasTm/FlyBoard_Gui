@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Zed editörünün (clangd) Qt sınıflarını tanıması için bu satır şarttır
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Quick SerialPort)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick SerialPort QuickControls2)
 
 qt_standard_project_setup()
 
@@ -31,4 +31,5 @@ target_link_libraries(FlyBoard_Gui PRIVATE
     Qt6::Core
     Qt6::Quick
     Qt6::SerialPort
+    Qt6::QuickControls2
 )
