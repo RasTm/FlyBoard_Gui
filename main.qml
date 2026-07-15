@@ -181,7 +181,7 @@ ApplicationWindow {
             // HARİTA (%70 Dikey Alan)
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: parent.height * 0.70 // Haritanın payını %70'e çıkardık
+                Layout.preferredHeight: parent.height * 0.70
                 color: "#1e1e2e"; radius: 8; border.color: "#313244"; border.width: 2
                 clip: true
 
@@ -200,80 +200,91 @@ ApplicationWindow {
                     center: QtPositioning.coordinate(40.4000, 32.4000)
                     zoomLevel: 10
 
-                    property bool isSatellite: false
+                    // Harita Görünüm Modları (Siyasi ve Arazi)
+                    property int currentMapMode: 0 // 0: Siyasi, 1: Arazi
+                    property var modeNames: ["SİYASİ GÖRÜNÜM", "ARAZİ GÖRÜNÜMÜ"]
+
+                    // İlk açılışta Siyasi (Street) görünümü zorla
+                    Component.onCompleted: {
+                        for (var i = 0; i < supportedMapTypes.length; i++) {
+                            if (supportedMapTypes[i].name.toLowerCase().indexOf("street") !== -1) {
+                                activeMapType = supportedMapTypes[i];
+                                break;
+                            }
+                        }
+                    }
 
                     // FARE TEKERLEĞİ İLE ZOOM IN/OUT
                     WheelHandler {
                         id: wheel
                         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                         onWheel: (event) => {
-                            // event.angleDelta.y genelde tek tekerlek adımında 120 veya -120 döner.
                             flightMap.zoomLevel += (event.angleDelta.y / 120.0)
+                        }
+                    }
+
+                    // FARE SÜRÜKLEMESİ İLE KAYDIRMA (KUSURSUZ PAN)
+                    DragHandler {
+                        id: drag
+                        target: null
+                        property point lastPos
+                        onActiveChanged: {
+                            if (active) { lastPos = drag.centroid.position }
+                        }
+                        onCentroidChanged: {
+                            if (active) {
+                                let dx = drag.centroid.position.x - lastPos.x
+                                let dy = drag.centroid.position.y - lastPos.y
+                                flightMap.pan(-dx, -dy)
+                                lastPos = drag.centroid.position
+                            }
                         }
                     }
 
                     PinchHandler {
                         id: pinch
                         target: null
-                        onActiveChanged: if (active) { flightMap.startPan() } else { flightMap.stopPan() }
                         onScaleChanged: (delta) => {
                             flightMap.zoomLevel += Math.log2(delta)
                             flightMap.alignCoordinateToPoint(flightMap.center, pinch.centroid.position)
                         }
                     }
-                    DragHandler {
-                        id: drag
-                        target: null
-                        onTranslationChanged: (delta) => flightMap.pan(-delta.x, -delta.y)
-                    }
                 }
 
-                // HARİTA ETİKETİ VE UYDU/SİYASİ GEÇİŞ BUTONU
-                RowLayout {
+                // HARİTA GÖRÜNÜM DEĞİŞTİRME BUTONU
+                Button {
                     anchors.top: parent.top
                     anchors.left: parent.left
                     anchors.margins: 10
-                    spacing: 10
-
-                    Label {
-                        text: "GPS HARİTASI"
-                        color: "#11111b"
-                        font.bold: true
-                        padding: 6
-                        background: Rectangle { color: "#cdd6f4"; radius: 4; opacity: 0.9 }
+                    text: flightMap.modeNames[flightMap.currentMapMode]
+                    background: Rectangle { color: "#313244"; radius: 4; opacity: 0.9 }
+                    padding: 8
+                    contentItem: Text {
+                        text: parent.text; color: "#cdd6f4"; font.bold: true
+                        horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                     }
+                    onClicked: {
+                        // Modlar arasında dön: 0 -> 1 -> 0...
+                        flightMap.currentMapMode = (flightMap.currentMapMode + 1) % 2;
+                        var mode = flightMap.currentMapMode;
+                        var targetType = flightMap.supportedMapTypes[0];
 
-                    Button {
-                        text: flightMap.isSatellite ? "SİYASİ GÖRÜNÜM" : "UYDU GÖRÜNÜMÜ"
-                        background: Rectangle { color: "#313244"; radius: 4; opacity: 0.9 }
-                        contentItem: Text {
-                            text: parent.text; color: "#cdd6f4"; font.bold: true
-                            horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-                        }
-                        onClicked: {
-                            flightMap.isSatellite = !flightMap.isSatellite;
+                        for (var i = 0; i < flightMap.supportedMapTypes.length; i++) {
+                            var name = flightMap.supportedMapTypes[i].name.toLowerCase();
 
-                            var targetMap = flightMap.supportedMapTypes[0]; // Varsayılan: İlk indeks (Siyasi)
-                            if (flightMap.isSatellite) {
-                                // Desteklenen türler arasında isminde "satellite" geçen altlığı ara
-                                for (var i = 0; i < flightMap.supportedMapTypes.length; i++) {
-                                    if (flightMap.supportedMapTypes[i].name.toLowerCase().indexOf("satellite") !== -1) {
-                                        targetMap = flightMap.supportedMapTypes[i];
-                                        break;
-                                    }
-                                }
-                                // İsmen bulunamazsa ve 2'den fazla harita türü yüklüyse genel olarak 1. index uydudur
-                                if (targetMap === flightMap.supportedMapTypes[0] && flightMap.supportedMapTypes.length > 1) {
-                                    targetMap = flightMap.supportedMapTypes[1];
-                                }
+                            if (mode === 0 && (name.indexOf("street") !== -1 || name === "osm street map")) {
+                                targetType = flightMap.supportedMapTypes[i]; break;
                             }
-                            flightMap.activeMapType = targetMap;
+                            if (mode === 1 && (name.indexOf("terrain") !== -1 || name.indexOf("cycle") !== -1 || name.indexOf("topo") !== -1)) {
+                                targetType = flightMap.supportedMapTypes[i]; break;
+                            }
                         }
+                        flightMap.activeMapType = targetType;
                     }
                 }
             }
 
-            // GELİŞMİŞ SİSTEM LOGLARI VE TERMİNAL (%30 Dikey Alan - Otomatik doldurur)
+            // GELİŞMİŞ SİSTEM LOGLARI VE TERMİNAL (%30 Dikey Alan)
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
