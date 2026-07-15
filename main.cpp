@@ -6,9 +6,9 @@
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
-    
+
     QQuickStyle::setStyle("Fusion");
-    
+
     QQmlApplicationEngine engine;
 
     // Sınıfı oluştur ve QML'e "serialManager" adıyla tanıt
